@@ -16,6 +16,21 @@ const api = {
   analyzeRepo: (repoPath: string, dateFrom?: string, dateTo?: string): Promise<any> =>
     ipcRenderer.invoke('repo:analyze', repoPath, dateFrom, dateTo),
 
+  // Project CRUD
+  addProject: (name: string, repoPath: string): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('project:add', name, repoPath),
+
+  getProjects: (): Promise<any[]> => ipcRenderer.invoke('project:list'),
+
+  updateProject: (id: number, name: string): Promise<void> =>
+    ipcRenderer.invoke('project:update', id, name),
+
+  deleteProject: (id: number): Promise<void> =>
+    ipcRenderer.invoke('project:delete', id),
+
+  touchProject: (id: number): Promise<void> =>
+    ipcRenderer.invoke('project:touch', id),
+
   // Report
   exportMd: (payload: any): Promise<any> => ipcRenderer.invoke('report:exportMd', payload),
 

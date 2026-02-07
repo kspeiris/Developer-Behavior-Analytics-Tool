@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import type { Mode, LocalResult, GitHubResult } from './ui/types';
 import KpiCards from './ui/components/KpiCards';
 import Charts from './ui/components/Charts';
+import ProjectsView from './ui/views/ProjectsView';
 import { Layout, ThemeProvider, type View } from './ui/Layout';
 import { cn } from './lib/utils';
 import { Loader2, FolderOpen, Github, Calendar as CalendarIcon, Download, RefreshCw, AlertCircle } from 'lucide-react';
@@ -64,6 +65,13 @@ function AppContent({ view, onViewChange }: { view: View; onViewChange: (v: View
     window.dbat.setMode(mode).catch(() => { });
   }, [mode]);
 
+  useEffect(() => {
+    if (repoPath) {
+      // Auto-analyze when repoPath changes from project selection?
+      // For now, let user click Analyze, or we can trigger it.
+    }
+  }, [repoPath]);
+
   const activeResult = useMemo(() => (mode === 'github' ? ghRes : localRes), [mode, ghRes, localRes]);
 
   async function pickRepo() {
@@ -92,6 +100,16 @@ function AppContent({ view, onViewChange }: { view: View; onViewChange: (v: View
     } finally {
       setBusy(false);
     }
+  }
+
+  // Auto-trigger analysis if repoPath set via project select
+  async function handleProjectSelect(path: string) {
+    setRepoPath(path);
+    setMode('local');
+    // Optional: trigger analysis immediately
+    // await analyzeLocal(); // State updates in React are async, better to just set path and let user click, or use effect.
+    // Let's just switch view to dashboard. The user will see the path in the input.
+    onViewChange('dashboard');
   }
 
   async function startGitHubLogin() {
@@ -168,6 +186,10 @@ function AppContent({ view, onViewChange }: { view: View; onViewChange: (v: View
   }
 
   // --- Views ---
+
+  if (view === 'projects') {
+    return <ProjectsView onSelectProject={handleProjectSelect} />;
+  }
 
   if (view === 'settings') {
     return (

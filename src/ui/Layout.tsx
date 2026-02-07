@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
-import { LayoutDashboard, BarChart3, FileText, Settings, Moon, Sun, Laptop, Sparkles, Trees } from 'lucide-react';
+import { LayoutDashboard, BarChart3, FileText, Settings, Moon, Sun, Laptop, Sparkles, Trees, FolderGit2 } from 'lucide-react';
 
-export type View = 'dashboard' | 'analytics' | 'reports' | 'settings';
+export type View = 'dashboard' | 'analytics' | 'reports' | 'settings' | 'projects';
 
 type Theme = 'light' | 'dark' | 'midnight' | 'forest' | 'system';
 
@@ -91,6 +91,7 @@ function Sidebar({ currentView, onNavigate }: { currentView: View; onNavigate: (
             <div className="flex-1 overflow-auto py-4">
                 <nav className="grid items-start px-2 lg:px-4 gap-1">
                     {navItem('dashboard', 'Dashboard', LayoutDashboard)}
+                    {navItem('projects', 'Projects', FolderGit2)}
                     {navItem('analytics', 'Analytics', BarChart3)}
                     {navItem('reports', 'Reports', FileText)}
                     {navItem('settings', 'Settings', Settings)}

@@ -2,7 +2,10 @@ import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { existsSync } from 'node:fs';
-import { upsertRecentRepo, getRecentRepos, setLastMode, getLastMode } from './db/index.js';
+import {
+  upsertRecentRepo, getRecentRepos, setLastMode, getLastMode,
+  addProject, getProjects, updateProject, deleteProject, touchProject
+} from './db/index.js';
 import { analyzeLocalRepo } from './analytics/gitLocal.js';
 import {
   githubStartDeviceFlow,
@@ -118,6 +121,33 @@ ipcMain.handle('repo:pick', async () => {
 });
 
 ipcMain.handle('repo:recent', async () => getRecentRepos());
+
+// --- Project CRUD Handlers ---
+ipcMain.handle('project:add', async (_e, name: string, repoPath: string) => {
+  try {
+    addProject(name, repoPath);
+    return { ok: true };
+  } catch (err: any) {
+    return { ok: false, error: err.message };
+  }
+});
+
+ipcMain.handle('project:list', async () => getProjects());
+
+ipcMain.handle('project:update', async (_e, id: number, name: string) => {
+  updateProject(id, name);
+  return true;
+});
+
+ipcMain.handle('project:delete', async (_e, id: number) => {
+  deleteProject(id);
+  return true;
+});
+
+ipcMain.handle('project:touch', async (_e, id: number) => {
+  touchProject(id);
+  return true;
+});
 
 ipcMain.handle('repo:analyze', async (_e, repoPath: string, dateFrom?: string, dateTo?: string) => {
   return analyzeLocalRepo(repoPath, { dateFrom, dateTo });

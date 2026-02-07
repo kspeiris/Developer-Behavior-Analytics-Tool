@@ -26,6 +26,14 @@ export type Analytics = {
   impactScore: number;
 };
 
+export interface Project {
+  id: number;
+  name: string;
+  path: string;
+  created_at: number;
+  last_opened_at: number;
+}
+
 export type LocalResult = {
   ok: boolean;
   mode: 'local';
@@ -57,6 +65,13 @@ declare global {
       pickRepo: () => Promise<{ ok: boolean; repoPath?: string; error?: string }>;
       recentRepos: () => Promise<string[]>;
       analyzeRepo: (repoPath: string, dateFrom?: string, dateTo?: string) => Promise<any>;
+
+      // Project CRUD
+      addProject: (name: string, repoPath: string) => Promise<{ ok: boolean; error?: string }>;
+      getProjects: () => Promise<Project[]>;
+      updateProject: (id: number, name: string) => Promise<void>;
+      deleteProject: (id: number) => Promise<void>;
+      touchProject: (id: number) => Promise<void>;
 
       exportMd: (payload: any) => Promise<any>;
 
