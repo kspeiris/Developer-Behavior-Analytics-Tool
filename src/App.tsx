@@ -2,20 +2,23 @@ import React, { useEffect, useMemo, useState } from 'react';
 import type { Mode, LocalResult, GitHubResult } from './ui/types';
 import KpiCards from './ui/components/KpiCards';
 import Charts from './ui/components/Charts';
-import { Layout, ThemeProvider } from './ui/Layout';
+import { Layout, ThemeProvider, type View } from './ui/Layout';
 import { cn } from './lib/utils';
+import { Loader2, FolderOpen, Github, Calendar as CalendarIcon, Download, RefreshCw, AlertCircle } from 'lucide-react';
 
 export default function App() {
+  const [currentView, setCurrentView] = useState<View>('dashboard');
+
   return (
     <ThemeProvider>
-      <Layout>
-        <DashboardContent />
+      <Layout currentView={currentView} onNavigate={setCurrentView}>
+        <AppContent view={currentView} onViewChange={setCurrentView} />
       </Layout>
     </ThemeProvider>
   );
 }
 
-function DashboardContent() {
+function AppContent({ view, onViewChange }: { view: View; onViewChange: (v: View) => void }) {
   const [mode, setMode] = useState<Mode>('local');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,6 +85,7 @@ function DashboardContent() {
       if (!res.ok) throw new Error(res.error || 'Analysis failed');
       console.log('Local Analysis Result:', res);
       setLocalRes(res);
+      onViewChange('dashboard'); // Switch to dashboard on success
     } catch (e: any) {
       console.error('Local analysis error:', e);
       setError(e.message ?? String(e));
@@ -139,6 +143,7 @@ function DashboardContent() {
       if (!res.ok) throw new Error(res.error || 'GitHub analysis failed');
       console.log('GitHub Analysis Result:', res);
       setGhRes(res);
+      onViewChange('dashboard');
     } catch (e: any) {
       console.error('GitHub analysis error:', e);
       setError(e.message ?? String(e));
@@ -162,43 +167,107 @@ function DashboardContent() {
     setGhRes(null);
   }
 
+  // --- Views ---
+
+  if (view === 'settings') {
+    return (
+      <div className="space-y-6 animate-in fade-in-50 zoom-in-95 duration-300">
+        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+        <Card>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="p-2 bg-primary/10 rounded-lg text-primary">
+              <RefreshCw className="h-5 w-5" />
+            </div>
+            <h3 className="font-semibold text-lg">Application Management</h3>
+          </div>
+
+          <div className="space-y-4">
+            <div className="rounded-lg border bg-muted/50 p-4">
+              <p className="text-sm font-medium">Developer Behavior Analytics Tool</p>
+              <p className="text-xs text-muted-foreground">Version 1.0.0</p>
+            </div>
+
+            <div>
+              <h4 className="font-medium text-sm mb-2">Troubleshooting</h4>
+              <p className="text-sm text-muted-foreground mb-3">
+                If you encounter issues with cached data or themes, reloading the application can often resolve them.
+              </p>
+              <Button variant="outline" onClick={() => window.location.reload()} className="w-full sm:w-auto">
+                <RefreshCw className="mr-2 h-4 w-4" /> Reload Application
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  if (view === 'reports') {
+    return (
+      <div className="space-y-6 animate-in fade-in-50 zoom-in-95 duration-300">
+        <h1 className="text-3xl font-bold tracking-tight">Reports</h1>
+        <Card>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="p-2 bg-primary/10 rounded-lg text-primary">
+              <Download className="h-5 w-5" />
+            </div>
+            <h3 className="font-semibold text-lg">Export Analysis</h3>
+          </div>
+          <p className="text-sm text-muted-foreground mb-6">
+            Generate a comprehensive Markdown report of your current analysis session.
+            This report includes summary metrics, detailed insights, and is formatted for easy sharing.
+          </p>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <Button disabled={busy || !activeResult} onClick={exportReport} className="w-full sm:w-auto">
+              {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Export Markdown Report
+            </Button>
+            {!activeResult && (
+              <div className="flex items-center text-xs text-amber-500 bg-amber-500/10 px-3 py-1.5 rounded-full">
+                <AlertCircle className="mr-1.5 h-3 w-3" />
+                Run an analysis first to enable export.
+              </div>
+            )}
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Dashboard & Analytics (Unified for now)
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in-50 zoom-in-95 duration-300">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <div className="flex items-center gap-2">
-          <div className="flex items-center rounded-lg border bg-card p-1">
+          <div className="flex items-center rounded-lg border bg-card p-1 shadow-sm">
             <button
               onClick={() => setMode('local')}
               className={cn(
-                "rounded-md px-3 py-1.5 text-sm font-medium transition-all",
+                "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-all",
                 mode === 'local' ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
             >
+              <FolderOpen className="h-4 w-4" />
               Local
             </button>
             <button
               onClick={() => setMode('github')}
               className={cn(
-                "rounded-md px-3 py-1.5 text-sm font-medium transition-all",
+                "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-all",
                 mode === 'github' ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
             >
+              <Github className="h-4 w-4" />
               GitHub
             </button>
           </div>
-          <button
-            disabled={busy}
-            onClick={exportReport}
-            className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground disabled:pointer-events-none disabled:opacity-50"
-          >
-            Export MD
-          </button>
         </div>
       </div>
 
       {error && (
-        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive dark:border-destructive">
+        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive dark:border-destructive flex items-center gap-2 animate-in slide-in-from-top-2">
+          <AlertCircle className="h-4 w-4" />
           {error}
         </div>
       )}
@@ -208,14 +277,17 @@ function DashboardContent() {
           <Card>
             <div className="flex flex-col gap-4 md:flex-row md:items-end">
               <div className="flex-1">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Repository</label>
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Repository Path</label>
                 <div className="mt-2 flex gap-2">
-                  <input
-                    value={repoPath}
-                    onChange={e => setRepoPath(e.target.value)}
-                    placeholder="Pick a repo folder (must contain .git)"
-                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                  />
+                  <div className="relative flex-1">
+                    <FolderOpen className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <input
+                      value={repoPath}
+                      onChange={e => setRepoPath(e.target.value)}
+                      placeholder="Pick a repo folder (must contain .git)"
+                      className="flex h-9 w-full rounded-md border border-input bg-background pl-9 pr-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    />
+                  </div>
                   <Button onClick={pickRepo} variant="secondary">Browse</Button>
                 </div>
                 {recent.length > 0 && (
@@ -233,29 +305,44 @@ function DashboardContent() {
                   </div>
                 )}
               </div>
-              <div className="w-full md:w-40">
+              <div className="w-full md:w-36">
                 <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Since</label>
-                <input
-                  value={dateFrom}
-                  onChange={e => setDateFrom(e.target.value)}
-                  placeholder="YYYY-MM-DD"
-                  className="mt-2 flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                />
+                <div className="relative mt-2">
+                  <CalendarIcon className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <input
+                    value={dateFrom}
+                    onChange={e => setDateFrom(e.target.value)}
+                    placeholder="YYYY-MM-DD"
+                    className="flex h-9 w-full rounded-md border border-input bg-background pl-9 pr-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  />
+                </div>
               </div>
-              <div className="w-full md:w-40">
+              <div className="w-full md:w-36">
                 <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Until</label>
-                <input
-                  value={dateTo}
-                  onChange={e => setDateTo(e.target.value)}
-                  placeholder="YYYY-MM-DD"
-                  className="mt-2 flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                />
+                <div className="relative mt-2">
+                  <CalendarIcon className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <input
+                    value={dateTo}
+                    onChange={e => setDateTo(e.target.value)}
+                    placeholder="YYYY-MM-DD"
+                    className="flex h-9 w-full rounded-md border border-input bg-background pl-9 pr-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  />
+                </div>
               </div>
-              <Button disabled={busy || !repoPath.trim()} onClick={analyzeLocal} className="w-full md:w-auto">
-                {busy ? 'Analyzing...' : 'Analyze'}
+              <Button disabled={busy || !repoPath.trim()} onClick={analyzeLocal} className="w-full md:w-auto min-w-[100px]">
+                {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Analyze'}
               </Button>
             </div>
           </Card>
+
+          {busy && !localRes && (
+            <div className="flex h-64 items-center justify-center rounded-xl border border-dashed bg-muted/30">
+              <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p>Analyzing repository...</p>
+              </div>
+            </div>
+          )}
 
           {localRes?.analytics && (
             <DashboardView
@@ -290,16 +377,20 @@ function DashboardContent() {
               <div className="flex items-end gap-2">
                 {!ghAuthed ? (
                   <>
-                    <Button disabled={busy} onClick={startGitHubLogin} variant="outline" className="flex-1">Login</Button>
+                    <Button disabled={busy} onClick={startGitHubLogin} variant="outline" className="flex-1">
+                      {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Login'}
+                    </Button>
                     {deviceFlow && (
                       <Button disabled={polling} onClick={pollGitHubLogin} className="flex-1">
-                        {polling ? 'Checking...' : 'Authorized'}
+                        {polling ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Authorized'}
                       </Button>
                     )}
                   </>
                 ) : (
                   <>
-                    <Button disabled={busy} onClick={analyzeGitHub} className="flex-1">Analyze</Button>
+                    <Button disabled={busy} onClick={analyzeGitHub} className="flex-1">
+                      {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Analyze'}
+                    </Button>
                     <Button onClick={logoutGitHub} variant="outline">Logout</Button>
                   </>
                 )}
@@ -315,6 +406,15 @@ function DashboardContent() {
               </div>
             )}
           </Card>
+
+          {busy && !ghRes && (
+            <div className="flex h-64 items-center justify-center rounded-xl border border-dashed bg-muted/30">
+              <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p>Analyzing GitHub account...</p>
+              </div>
+            </div>
+          )}
 
           {ghRes?.analytics && (
             <DashboardView
@@ -345,10 +445,10 @@ function Card({ children, className }: { children: React.ReactNode; className?: 
 
 function Button({ onClick, disabled, variant = 'default', size = 'default', children, className }: any) {
   const variants: any = {
-    default: "bg-primary text-primary-foreground hover:bg-primary/90",
-    destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-    outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-    secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+    default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
+    destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
+    outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground shadow-sm",
+    secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm",
     ghost: "hover:bg-accent hover:text-accent-foreground",
     link: "text-primary underline-offset-4 hover:underline",
   };
@@ -402,7 +502,7 @@ function TopList({ analytics }: { analytics: any }) {
         <table className="w-full caption-bottom text-sm">
           <thead className="[&_tr]:border-b">
             <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-              <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">File</th>
+              <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 w-[50%]">File</th>
               <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">Commits</th>
               <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">+Ins</th>
               <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">-Del</th>
@@ -411,16 +511,16 @@ function TopList({ analytics }: { analytics: any }) {
           <tbody className="[&_tr:last-child]:border-0">
             {files.map((f: any) => (
               <tr key={f.path} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0 font-medium">{f.path}</td>
-                <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0 text-right">{f.commits}</td>
-                <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0 text-right text-green-500">+{f.ins}</td>
-                <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0 text-right text-red-500">-{f.del}</td>
+                <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0 font-medium truncate max-w-[200px]" title={f.path}>{f.path}</td>
+                <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0 text-right font-mono">{f.commits}</td>
+                <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0 text-right text-green-500 font-mono">+{f.ins}</td>
+                <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0 text-right text-red-500 font-mono">-{f.del}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <div className="p-4 text-xs text-muted-foreground">Local mode only.</div>
+      <div className="p-4 text-xs text-muted-foreground bg-muted/20">Local mode only.</div>
     </Card>
   );
 }
