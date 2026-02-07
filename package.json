@@ -1,0 +1,42 @@
+{
+  "name": "dbat",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev": "concurrently -k \"npm:dev:vite\" \"npm:dev:electron:watch\" \"npm:dev:electron\"",
+    "dev:vite": "vite",
+    "dev:electron:watch": "npx tsc -p tsconfig.node.json --watch",
+    "dev:electron": "wait-on tcp:5173 dist-electron/main.js && electron .",
+    "build": "vite build && npx tsc -p tsconfig.node.json",
+    "start": "npm run build && electron ."
+  },
+  "dependencies": {
+    "@octokit/request": "^9.2.0",
+    "better-sqlite3": "^11.1.2",
+    "clsx": "^2.1.1",
+    "electron": "^30.0.0",
+    "keytar": "^7.9.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.15.0",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
+    "electron-rebuild": "^3.2.9",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.18",
+    "typescript": "^5.9.3",
+    "vite": "^6.0.3",
+    "wait-on": "^8.0.1"
+  }
+}
