@@ -73,9 +73,11 @@ By analyzing local Git repositories and GitHub account data, DBAT visualizes key
 
 ## :camera: Screenshots
 
-<div align="center"> 
-  <img src="https://via.placeholder.com/800x500.png?text=Dashboard+Screenshot+Placeholder" alt="Dashboard Screenshot" />
-</div>
+
+![Image 1](DBAT1.png)
+![Image 1](DBAT2.png)
+![Image 1](DBAT3.png)
+![Image 1](DBAT4.png)
 
 ## :space_invader: Tech Stack
 
@@ -242,4 +244,5 @@ Project Link: [https://github.com/kspeiris/Developer-Behavior-Analytics-Tool](ht
 - [React Icons](https://react-icons.github.io/react-icons/)
 - [Shadcn UI](https://ui.shadcn.com/)
 - [Vite Electron Builder](https://github.com/electron-vite/electron-vite-react)
+
 
