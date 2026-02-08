@@ -44,6 +44,7 @@
 
 <br />
 
+![hero image](hero_DBAT.png)
 <!-- Table of Contents -->
 # :notebook_with_decorative_cover: Table of Contents
 
@@ -241,3 +242,4 @@ Project Link: [https://github.com/kspeiris/Developer-Behavior-Analytics-Tool](ht
 - [React Icons](https://react-icons.github.io/react-icons/)
 - [Shadcn UI](https://ui.shadcn.com/)
 - [Vite Electron Builder](https://github.com/electron-vite/electron-vite-react)
+
