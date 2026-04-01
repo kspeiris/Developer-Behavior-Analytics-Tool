@@ -1,250 +1,174 @@
-
 <div align="center">
+  <img src="assets/icon.png" alt="DBAT logo" width="96" />
+  <h1>Developer Behavior Analytics Tool</h1>
+  <p>Desktop analytics for local Git repositories and GitHub activity.</p>
 
-  <img src="assets/icon.ico" alt="logo" width="100" height="auto" />
-  <h1>Developer Behavior Analytics Tool (DBAT)</h1>
-  
   <p>
-    An advanced developer productivity and behavior analysis tool built with Electron, React, and TypeScript.
+    <a href="https://github.com/kspeiris/Developer-Behavior-Analytics-Tool/graphs/contributors">
+      <img src="https://img.shields.io/github/contributors/kspeiris/Developer-Behavior-Analytics-Tool" alt="Contributors" />
+    </a>
+    <a href="https://github.com/kspeiris/Developer-Behavior-Analytics-Tool/commits/main">
+      <img src="https://img.shields.io/github/last-commit/kspeiris/Developer-Behavior-Analytics-Tool" alt="Last commit" />
+    </a>
+    <a href="https://github.com/kspeiris/Developer-Behavior-Analytics-Tool/network/members">
+      <img src="https://img.shields.io/github/forks/kspeiris/Developer-Behavior-Analytics-Tool" alt="Forks" />
+    </a>
+    <a href="https://github.com/kspeiris/Developer-Behavior-Analytics-Tool/stargazers">
+      <img src="https://img.shields.io/github/stars/kspeiris/Developer-Behavior-Analytics-Tool" alt="Stars" />
+    </a>
+    <a href="https://github.com/kspeiris/Developer-Behavior-Analytics-Tool/issues">
+      <img src="https://img.shields.io/github/issues/kspeiris/Developer-Behavior-Analytics-Tool" alt="Issues" />
+    </a>
+    <a href="https://github.com/kspeiris/Developer-Behavior-Analytics-Tool/blob/main/LICENSE">
+      <img src="https://img.shields.io/github/license/kspeiris/Developer-Behavior-Analytics-Tool.svg" alt="License" />
+    </a>
   </p>
-  
-  
-<!-- Badges -->
-<p>
-  <a href="https://github.com/kspeiris/Developer-Behavior-Analytics-Tool/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/kspeiris/Developer-Behavior-Analytics-Tool" alt="contributors" />
-  </a>
-  <a href="">
-    <img src="https://img.shields.io/github/last-commit/kspeiris/Developer-Behavior-Analytics-Tool" alt="last update" />
-  </a>
-  <a href="https://github.com/kspeiris/Developer-Behavior-Analytics-Tool/network/members">
-    <img src="https://img.shields.io/github/forks/kspeiris/Developer-Behavior-Analytics-Tool" alt="forks" />
-  </a>
-  <a href="https://github.com/kspeiris/Developer-Behavior-Analytics-Tool/stargazers">
-    <img src="https://img.shields.io/github/stars/kspeiris/Developer-Behavior-Analytics-Tool" alt="stars" />
-  </a>
-  <a href="https://github.com/kspeiris/Developer-Behavior-Analytics-Tool/issues/">
-    <img src="https://img.shields.io/github/issues/kspeiris/Developer-Behavior-Analytics-Tool" alt="open issues" />
-  </a>
-  <a href="https://github.com/kspeiris/Developer-Behavior-Analytics-Tool/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/kspeiris/Developer-Behavior-Analytics-Tool.svg" alt="license" />
-  </a>
-</p>
-   
-<h4>
-    <a href="https://github.com/kspeiris/Developer-Behavior-Analytics-Tool/">View Demo</a>
-  <span> · </span>
-    <a href="https://github.com/kspeiris/Developer-Behavior-Analytics-Tool">Documentation</a>
-  <span> · </span>
-    <a href="https://github.com/kspeiris/Developer-Behavior-Analytics-Tool/issues/">Report Bug</a>
-  <span> · </span>
-    <a href="https://github.com/kspeiris/Developer-Behavior-Analytics-Tool/issues/">Request Feature</a>
-  </h4>
 </div>
 
-System File - https://drive.google.com/file/d/1F3r6xgSdaQ0aMJjVSMTh2bYd5bD9sg4h/view?usp=sharing
+System build: https://drive.google.com/file/d/1F3r6xgSdaQ0aMJjVSMTh2bYd5bD9sg4h/view?usp=sharing
 
-<br />
+![DBAT hero](hero_DBAT.png)
 
-![hero image](hero_DBAT.png)
-<!-- Table of Contents -->
-# :notebook_with_decorative_cover: Table of Contents
+## Table of Contents
 
-- [About the Project](#star2-about-the-project)
-  - [Screenshots](#camera-screenshots)
-  - [Tech Stack](#space_invader-tech-stack)
-  - [Features](#dart-features)
-- [Getting Started](#toolbox-getting-started)
-  - [Prerequisites](#bangbang-prerequisites)
-  - [Installation](#gear-installation)
-  - [Run Locally](#running-run-locally)
-- [Usage](#eyes-usage)
-- [Roadmap](#compass-roadmap)
-- [Contributing](#wave-contributing)
-- [License](#warning-license)
-- [Contact](#handshake-contact)
-- [Acknowledgements](#gem-acknowledgements)
+- [About](#about)
+- [Screenshots](#screenshots)
+- [Tech Stack](#tech-stack)
+- [Features](#features)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
----
+## About
 
-# :star2: About the Project
+DBAT is a desktop application for analyzing developer activity from local Git repositories and GitHub accounts. It helps surface commit patterns, code churn, active days, hotspots, and other productivity signals in a single interface.
 
-**DBAT (Developer Behavior Analytics Tool)** is a cross-platform desktop application designed to provide developers and managers with deep insights into coding habits, project activity, and repository health. 
+## Screenshots
 
-By analyzing local Git repositories and GitHub account data, DBAT visualizes key metrics such as commit frequency, code churn, and engagement scores, helping teams identify bottlenecks and celebrate productivity.
+![Dashboard 1](DBAT1.png)
+![Dashboard 2](DBAT2.png)
+![Dashboard 3](DBAT3.png)
+![Dashboard 4](DBAT4.png)
 
-## :camera: Screenshots
+## Tech Stack
 
+- React
+- TypeScript
+- Vite
+- Electron
+- Tailwind CSS
+- Recharts
+- better-sqlite3
 
-![Image 1](DBAT1.png)
-![Image 1](DBAT2.png)
-![Image 1](DBAT3.png)
-![Image 1](DBAT4.png)
+## Features
 
-## :space_invader: Tech Stack
+- Local repository analysis
+- GitHub account analysis
+- Dashboard cards and charts
+- Top modified files and churn tracking
+- Markdown report export
+- Saved projects
+- Recent repository history
 
-<details>
-  <summary>Client</summary>
-  <ul>
-    <li><a href="https://reactjs.org/">React.js</a></li>
-    <li><a href="https://www.typescriptlang.org/">TypeScript</a></li>
-    <li><a href="https://tailwindcss.com/">TailwindCSS</a></li>
-    <li><a href="https://vitejs.dev/">Vite</a></li>
-    <li><a href="https://lucide.dev/">Lucide React</a></li>
-    <li><a href="https://recharts.org/">Recharts</a></li>
-  </ul>
-</details>
+## Getting Started
 
-<details>
-  <summary>Desktop Wrapper</summary>
-  <ul>
-    <li><a href="https://www.electronjs.org/">Electron</a></li>
-    <li><a href="https://www.electron.build/">Electron Builder</a></li>
-  </ul>
-</details>
+### Prerequisites
 
-<details>
-  <summary>Database & Backend Logic</summary>
-  <ul>
-    <li><a href="https://github.com/WiseLibs/better-sqlite3">Better-sqlite3</a></li>
-    <li><a href="https://nodejs.org/">Node.js</a></li>
-  </ul>
-</details>
-
-## :dart: Features
-
-- **Dual Mode Analysis**: 
-  - **Local Mode**: Analyze any git repository on your machine instantly.
-  - **GitHub Mode**: Connect your GitHub account via OAuth to analyze remote activity and engagement.
-- **Interactive Dashboard**: Visual KPIs including total commits, active days, and code churn metrics.
-- **Activity Charts**: visualizing commit history over time.
-- **Top Files Analysis**: Identify which files are modified most frequently (hotspots).
-- **Export Capabilities**: Generate comprehensive Markdown reports of your analysis.
-- **Project History**: Quickly switch between recently analyzed repositories.
-- **Secure Authentication**: Safe GitHub login integration.
-
----
-
-# :toolbox: Getting Started
-
-Follow these steps to get a local copy up and running.
-
-## :bangbang: Prerequisites
-
-This project requires Node.js and npm to be installed on your machine.
-- [Node.js](https://nodejs.org/en/download/) (v16+)
+- Node.js 18 or newer
 - npm
 
+### Installation
+
 ```bash
-npm install npm@latest -g
+git clone https://github.com/kspeiris/Developer-Behavior-Analytics-Tool.git
+cd Developer-Behavior-Analytics-Tool
+npm install
 ```
 
-## :gear: Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/kspeiris/Developer-Behavior-Analytics-Tool.git
-   ```
-
-2. Navigate to the project directory:
-   ```bash
-   cd Developer-Behavior-Analytics-Tool
-   ```
-
-3. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-## :running: Run Locally
-
-To start the application in development mode with hot-reloading:
+### Run in Development
 
 ```bash
 npm run dev
 ```
-> This will start the Vite dev server and launch the Electron window.
 
-To build the application for production:
+This starts Vite, watches the Electron files, and launches the Electron app.
+
+### Build the App
 
 ```bash
 npm run build
 ```
 
-To package the application (create an executable):
+### Run the Built App
+
+```bash
+npm run start
+```
+
+### Package the App
+
+```bash
+npm run pack
+```
+
+To create an installer:
 
 ```bash
 npm run dist
 ```
 
----
-
-# :eyes: Usage
+## Usage
 
 ### Local Repository Analysis
-1. Launch the application.
-2. Select **Local** mode from the dashboard toggle.
-3. Click **Browse** to select a folder containing a `.git` repository.
-4. (Optional) Set a date range for the analysis.
-5. Click **Analyze**.
-6. View the generated dashboard with commit statistics and file activity.
 
-### GitHub Account Analysis
-1. Select **GitHub** mode.
-2. Enter your **Client ID** (for OAuth App) and **Username**.
-3. Click **Login** to authenticate securely with GitHub.
-4. Once authenticated, click **Analyze** to fetch and visualize account data.
+1. Open the app.
+2. Choose `Local`.
+3. Browse to a folder that contains a `.git` directory.
+4. Optionally set `Since` and `Until`.
+5. Click `Analyze`.
 
-### Exporting Reports
-1. Run an analysis in either mode.
-2. Navigate to the **Reports** tab via the UI (if available) or look for the export button.
-3. Click **Export Markdown Report** to save a summary of your data.
+### GitHub Analysis
 
----
+1. Choose `GitHub`.
+2. Enter your GitHub OAuth app client ID.
+3. Enter the GitHub username to analyze.
+4. Complete login.
+5. Click `Analyze`.
 
-# :compass: Roadmap
+### Reports
 
-- [x] Local Git Repository Analysis
-- [x] GitHub Account Integration
-- [x] Interactive Charts & Dashboard
-- [ ] Comparison between multiple repositories
-- [ ] Team/Organization level analytics
-- [ ] PDF Export support
-- [ ] Custom date range presets
+1. Run an analysis.
+2. Open the `Reports` view.
+3. Export the current results as Markdown.
 
----
+## Roadmap
 
-# :wave: Contributing
+- [x] Local Git repository analysis
+- [x] GitHub account integration
+- [x] Dashboard and charts
+- [ ] Multi-repository comparison
+- [ ] Team or organization analytics
+- [ ] PDF export
+- [ ] Preset date ranges
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+## Contributing
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. Fork the repository.
+2. Create a branch.
+3. Make your changes.
+4. Commit and push.
+5. Open a pull request.
 
----
+## License
 
-# :warning: License
+This project is licensed under the MIT License.
 
-Distributed under the MIT License. See `LICENSE` for more information.
+## Contact
 
----
+Kavindu Peiris  
+GitHub: https://github.com/kspeiris
 
-# :handshake: Contact
-
-Kavindu Peiris - [GitHub Profile](https://github.com/kspeiris)
-
-Project Link: [https://github.com/kspeiris/Developer-Behavior-Analytics-Tool](https://github.com/kspeiris/Developer-Behavior-Analytics-Tool)
-
----
-
-# :gem: Acknowledgements
-
-- [Shields.io](https://shields.io/)
-- [React Icons](https://react-icons.github.io/react-icons/)
-- [Shadcn UI](https://ui.shadcn.com/)
-- [Vite Electron Builder](https://github.com/electron-vite/electron-vite-react)
-
-
+Project: https://github.com/kspeiris/Developer-Behavior-Analytics-Tool
