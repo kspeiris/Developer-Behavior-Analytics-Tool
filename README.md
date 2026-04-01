@@ -35,6 +35,7 @@ System build: https://drive.google.com/file/d/1F3r6xgSdaQ0aMJjVSMTh2bYd5bD9sg4h/
 - [Screenshots](#screenshots)
 - [Tech Stack](#tech-stack)
 - [Features](#features)
+- [System Architecture](#system-architecture)
 - [Getting Started](#getting-started)
 - [Usage](#usage)
 - [Roadmap](#roadmap)
@@ -72,6 +73,33 @@ DBAT is a desktop application for analyzing developer activity from local Git re
 - Markdown report export
 - Saved projects
 - Recent repository history
+
+## System Architecture
+
+```mermaid
+flowchart LR
+    U[User] --> R[React Renderer<br/>src/App.tsx]
+    R --> P[Preload Bridge<br/>electron/preload.cts]
+    P --> M[Electron Main Process<br/>main.cjs]
+
+    M --> DB[SQLite Storage<br/>electron/db/index.ts]
+    M --> GL[Local Git Analyzer<br/>electron/analytics/gitLocal.ts]
+    M --> GH[GitHub Analyzer<br/>electron/analytics/github.ts]
+    M --> TS[Secure Token Store<br/>electron/security/tokenStore.ts]
+    M --> RP[Markdown Report Builder<br/>electron/report/mdReport.ts]
+
+    GL --> GIT[Local Git Repository]
+    GH --> API[GitHub API]
+    RP --> FILE[Exported Markdown File]
+```
+
+### Flow Summary
+
+- The React renderer handles the desktop UI.
+- The preload bridge exposes a safe API from Electron to the renderer.
+- The Electron main process coordinates IPC, storage, analysis, and export actions.
+- Repository analytics come from local Git history and GitHub API data.
+- App state, recent repositories, and saved projects are stored in SQLite.
 
 ## Getting Started
 
