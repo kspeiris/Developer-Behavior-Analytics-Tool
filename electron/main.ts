@@ -1,10 +1,13 @@
-import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { existsSync } from 'node:fs';
+import electronMain from 'electron/main';
+import electronCommon from 'electron/common';
 import {
   upsertRecentRepo, getRecentRepos, setLastMode, getLastMode,
-  addProject, getProjects, updateProject, deleteProject, touchProject
+  removeRecentRepo,
+  addProject, getProjects, updateProject, deleteProject, touchProject,
+  getAppState, setAppState
 } from './db/index.js';
 import { analyzeLocalRepo } from './analytics/gitLocal.js';
 import {
@@ -15,44 +18,29 @@ import {
 import { tokenStore } from './security/tokenStore.js';
 import { buildMarkdownReport } from './report/mdReport.js';
 
+const { app, BrowserWindow, dialog, ipcMain } = electronMain;
+const { shell } = electronCommon;
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const isDev = !app.isPackaged;
-let mainWindow: BrowserWindow | null = null;
+let mainWindow: InstanceType<typeof BrowserWindow> | null = null;
 
 function createWindow() {
-  // Determine preload path based on environment
-  let preloadPath: string;
+  let preloadPath = isDev
+    ? path.join(process.cwd(), 'dist-electron', 'preload.cjs')
+    : path.join(__dirname, 'preload.cjs');
 
-  if (isDev) {
-    // In development, preload should be in dist-electron
-    preloadPath = path.join(process.cwd(), 'dist-electron', 'preload.cjs');
-  } else {
-    // In production, preload is bundled with main
-    preloadPath = path.join(__dirname, 'preload.cjs');
-  }
-
-  // Debug logging
-  console.log('=== PRELOAD DEBUG ===');
-  console.log('isDev:', isDev);
-  console.log('process.cwd():', process.cwd());
-  console.log('__dirname:', __dirname);
-  console.log('Preload path:', preloadPath);
-  console.log('Preload exists:', existsSync(preloadPath));
-  console.log('====================');
-
-  // Fallback: try alternative paths if preload not found
   if (!existsSync(preloadPath)) {
     const alternatives = [
       path.join(__dirname, 'preload.js'),
       path.join(process.cwd(), 'dist-electron', 'preload.js'),
-      path.join(process.cwd(), 'preload.js'),
+      path.join(process.cwd(), 'preload.js')
     ];
 
     for (const alt of alternatives) {
       if (existsSync(alt)) {
-        console.log('⚠️ Using alternative preload path:', alt);
         preloadPath = alt;
         break;
       }
@@ -67,25 +55,16 @@ function createWindow() {
       preload: preloadPath,
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: false // Sometimes needed for proper IPC
+      sandbox: false
     }
   });
 
   if (isDev) {
-    // Load Vite dev server
     mainWindow.loadURL('http://localhost:5173');
     mainWindow.webContents.openDevTools({ mode: 'detach' });
   } else {
-    // Load built React app
-    mainWindow.loadFile(path.join(process.cwd(), 'dist', 'index.html'));
+    mainWindow.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));
   }
-
-  // Debug: Check if preload loaded successfully
-  mainWindow.webContents.on('did-finish-load', () => {
-    mainWindow?.webContents.executeJavaScript('console.log("window.dbat exists:", !!window.dbat)')
-      .then(result => console.log('Preload check result:', result))
-      .catch(err => console.error('Preload check failed:', err));
-  });
 }
 
 app.whenReady().then(() => {
@@ -99,12 +78,17 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
-/* ---------------- IPC API ---------------- */
-
 ipcMain.handle('app:getLastMode', async () => getLastMode());
 
 ipcMain.handle('app:setMode', async (_e, mode: 'local' | 'github') => {
   setLastMode(mode);
+  return true;
+});
+
+ipcMain.handle('app:getAppState', async (_e, key: string) => getAppState(key));
+
+ipcMain.handle('app:setAppState', async (_e, key: string, value: string) => {
+  setAppState(key, value);
   return true;
 });
 
@@ -113,7 +97,10 @@ ipcMain.handle('repo:pick', async () => {
     properties: ['openDirectory'],
     title: 'Select a Git Repository'
   });
-  if (res.canceled || res.filePaths.length === 0) return { ok: false, error: 'Cancelled' };
+
+  if (res.canceled || res.filePaths.length === 0) {
+    return { ok: false, error: 'Cancelled' };
+  }
 
   const repoPath = res.filePaths[0];
   await upsertRecentRepo(repoPath);
@@ -122,7 +109,11 @@ ipcMain.handle('repo:pick', async () => {
 
 ipcMain.handle('repo:recent', async () => getRecentRepos());
 
-// --- Project CRUD Handlers ---
+ipcMain.handle('repo:removeRecent', async (_e, repoPath: string) => {
+  removeRecentRepo(repoPath);
+  return true;
+});
+
 ipcMain.handle('project:add', async (_e, name: string, repoPath: string) => {
   try {
     addProject(name, repoPath);
@@ -168,12 +159,10 @@ ipcMain.handle('report:exportMd', async (_e, payload: any) => {
 
   try {
     await shell.showItemInFolder(filePath);
-  } catch { }
+  } catch {}
 
   return { ok: true, filePath };
 });
-
-/* -------- GitHub OAuth Device Flow -------- */
 
 ipcMain.handle('gh:hasToken', async () => Boolean(await tokenStore.getToken()));
 

@@ -1,8 +1,31 @@
 import Database from 'better-sqlite3';
+import { mkdirSync } from 'node:fs';
 import path from 'node:path';
-import { app } from 'electron';
 
-const dbPath = path.join(app.getPath('userData'), 'dbat.sqlite');
+function getUserDataDir() {
+  if (process.platform === 'win32') {
+    const appData = process.env.APPDATA;
+    if (appData) return path.join(appData, 'DBAT');
+  }
+
+  if (process.platform === 'darwin') {
+    const home = process.env.HOME;
+    if (home) return path.join(home, 'Library', 'Application Support', 'DBAT');
+  }
+
+  const xdg = process.env.XDG_CONFIG_HOME;
+  if (xdg) return path.join(xdg, 'DBAT');
+
+  const home = process.env.HOME;
+  if (home) return path.join(home, '.config', 'DBAT');
+
+  return path.join(process.cwd(), '.dbat');
+}
+
+const userDataDir = getUserDataDir();
+mkdirSync(userDataDir, { recursive: true });
+
+const dbPath = path.join(userDataDir, 'dbat.sqlite');
 const db = new Database(dbPath);
 
 export type Project = {
@@ -13,27 +36,43 @@ export type Project = {
   last_opened_at: number;
 };
 
-db.exec(`
-  PRAGMA journal_mode = WAL;
+db.pragma('journal_mode = WAL');
 
-  CREATE TABLE IF NOT EXISTS recent_repos (
-    repo_path TEXT PRIMARY KEY,
-    last_opened_at INTEGER NOT NULL
-  );
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS recent_repos (
+      repo_path TEXT PRIMARY KEY,
+      last_opened_at INTEGER NOT NULL
+    );
+  `);
+} catch (e) {
+  console.error('Failed to create recent_repos:', e);
+}
 
-  CREATE TABLE IF NOT EXISTS projects (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    path TEXT NOT NULL,
-    created_at INTEGER NOT NULL,
-    last_opened_at INTEGER NOT NULL
-  );
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS projects (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      path TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      last_opened_at INTEGER NOT NULL
+    );
+  `);
+} catch (e) {
+  console.error('Failed to create projects:', e);
+}
 
-  CREATE TABLE IF NOT EXISTS app_state (
-    key TEXT PRIMARY KEY,
-    value TEXT NOT NULL
-  );
-`);
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS app_state (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
+  `);
+} catch (e) {
+  console.error('Failed to create app_state:', e);
+}
 
 export function upsertRecentRepo(repoPath: string) {
   db.prepare(`
@@ -51,7 +90,9 @@ export function getRecentRepos(limit = 8): string[] {
   `).all(limit).map((r: any) => r.repo_path);
 }
 
-// --- Project CRUD ---
+export function removeRecentRepo(repoPath: string) {
+  return db.prepare(`DELETE FROM recent_repos WHERE repo_path = ?`).run(repoPath);
+}
 
 export function addProject(name: string, repoPath: string) {
   return db.prepare(`
@@ -76,16 +117,23 @@ export function touchProject(id: number) {
   return db.prepare(`UPDATE projects SET last_opened_at = ? WHERE id = ?`).run(Date.now(), id);
 }
 
-// --- App State ---
+export function setAppState(key: string, value: string) {
+  db.prepare(`
+    INSERT INTO app_state(key, value) VALUES(?, ?)
+    ON CONFLICT(key) DO UPDATE SET value=excluded.value
+  `).run(key, value);
+}
+
+export function getAppState(key: string): string | null {
+  const row = db.prepare(`SELECT value FROM app_state WHERE key=?`).get(key) as any;
+  return row?.value ?? null;
+}
 
 export function setLastMode(mode: 'local' | 'github') {
-  db.prepare(`
-    INSERT INTO app_state(key, value) VALUES('last_mode', ?)
-    ON CONFLICT(key) DO UPDATE SET value=excluded.value
-  `).run(mode);
+  setAppState('last_mode', mode);
 }
 
 export function getLastMode(): 'local' | 'github' {
-  const row = db.prepare(`SELECT value FROM app_state WHERE key='last_mode'`).get() as any;
-  return (row?.value === 'github' ? 'github' : 'local') as 'local' | 'github';
+  const val = getAppState('last_mode');
+  return (val === 'github' ? 'github' : 'local') as 'local' | 'github';
 }

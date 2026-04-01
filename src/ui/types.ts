@@ -64,6 +64,7 @@ declare global {
 
       pickRepo: () => Promise<{ ok: boolean; repoPath?: string; error?: string }>;
       recentRepos: () => Promise<string[]>;
+      removeRecentRepo: (repoPath: string) => Promise<boolean>;
       analyzeRepo: (repoPath: string, dateFrom?: string, dateTo?: string) => Promise<any>;
 
       // Project CRUD

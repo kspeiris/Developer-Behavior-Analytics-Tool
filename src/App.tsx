@@ -5,7 +5,7 @@ import Charts from './ui/components/Charts';
 import ProjectsView from './ui/views/ProjectsView';
 import { Layout, ThemeProvider, type View } from './ui/Layout';
 import { cn } from './lib/utils';
-import { Loader2, FolderOpen, Github, Calendar as CalendarIcon, Download, RefreshCw, AlertCircle } from 'lucide-react';
+import { Loader2, FolderOpen, Github, Calendar as CalendarIcon, Download, RefreshCw, AlertCircle, X } from 'lucide-react';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<View>('dashboard');
@@ -53,6 +53,12 @@ function AppContent({ view, onViewChange }: { view: View; onViewChange: (v: View
         setMode(m);
         setRecent(await window.dbat.recentRepos());
         setGhAuthed(await window.dbat.ghHasToken());
+
+        // Load GitHub details
+        const savedClientId = await window.dbat.getAppState('gh_client_id');
+        const savedUsername = await window.dbat.getAppState('gh_username');
+        if (savedClientId) setGhClientId(savedClientId);
+        if (savedUsername) setGhUsername(savedUsername);
       } catch (err) {
         console.error('Initialization error:', err);
         setError('Failed to initialize app');
@@ -71,6 +77,16 @@ function AppContent({ view, onViewChange }: { view: View; onViewChange: (v: View
       // For now, let user click Analyze, or we can trigger it.
     }
   }, [repoPath]);
+
+  useEffect(() => {
+    if (!window.dbat) return;
+    window.dbat.setAppState('gh_client_id', ghClientId).catch(() => { });
+  }, [ghClientId]);
+
+  useEffect(() => {
+    if (!window.dbat) return;
+    window.dbat.setAppState('gh_username', ghUsername).catch(() => { });
+  }, [ghUsername]);
 
   const activeResult = useMemo(() => (mode === 'github' ? ghRes : localRes), [mode, ghRes, localRes]);
 
@@ -99,6 +115,17 @@ function AppContent({ view, onViewChange }: { view: View; onViewChange: (v: View
       setError(e.message ?? String(e));
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function removeRecentRepo(repo: string) {
+    if (!window.dbat) return;
+    try {
+      await window.dbat.removeRecentRepo(repo);
+      setRecent(await window.dbat.recentRepos());
+      if (repoPath === repo) setRepoPath('');
+    } catch (e: any) {
+      setError(e.message ?? 'Failed to remove repository');
     }
   }
 
@@ -315,14 +342,26 @@ function AppContent({ view, onViewChange }: { view: View; onViewChange: (v: View
                 {recent.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-2">
                     {recent.map(r => (
-                      <button
+                      <div
                         key={r}
-                        onClick={() => setRepoPath(r)}
-                        className="rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                        title={r}
+                        className="flex items-center overflow-hidden rounded-full border border-transparent bg-secondary text-secondary-foreground"
                       >
-                        {shortPath(r)}
-                      </button>
+                        <button
+                          onClick={() => setRepoPath(r)}
+                          className="px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-secondary/80 focus:outline-none"
+                          title={r}
+                        >
+                          {shortPath(r)}
+                        </button>
+                        <button
+                          onClick={() => removeRecentRepo(r)}
+                          className="flex h-6 w-6 items-center justify-center text-secondary-foreground/70 transition-colors hover:bg-secondary/80 hover:text-secondary-foreground focus:outline-none"
+                          aria-label={`Remove ${r} from recent repositories`}
+                          title="Remove from recent"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
                     ))}
                   </div>
                 )}
